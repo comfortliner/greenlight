@@ -13,6 +13,7 @@ import (
 	"github.com/comfortliner/greenlight/internal/data"
 	"github.com/comfortliner/greenlight/internal/jsonlog"
 	"github.com/comfortliner/greenlight/internal/mailer"
+	"github.com/comfortliner/greenlight/internal/vcs"
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
@@ -55,7 +56,7 @@ func main() {
 
 	// Application
 	cfg.name = "api"
-	cfg.version = "1.0.0"
+	cfg.version = vcs.Version()
 
 	// Read the value of the given flags.
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")

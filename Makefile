@@ -104,6 +104,6 @@ run/api:
 .PHONY: api/build
 api/build:
 	@echo 'Building cmd/api for a macos/amd64  machine.'
-	GOOS=darwin GOARCH=amd64 go build -o=./bin/darwin/api ./cmd/api/*
+	GOOS=darwin GOARCH=amd64 go build -o=./bin/darwin/api ./cmd/api
 	@echo 'Building cmd/api for a windows/amd64 machine.'
-	GOOS=windows GOARCH=amd64 go build -o=./bin/windows/api.exe ./cmd/api/*
+	GOOS=windows GOARCH=amd64 go build -o=./bin/windows/api.exe ./cmd/api
