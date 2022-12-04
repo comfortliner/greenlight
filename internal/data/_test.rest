@@ -1,0 +1,92 @@
+### Healthcheck
+GET http://localhost:4000/v1/healthcheck HTTP/1.1
+content-type: application/json
+
+
+
+
+###************************
+### Authentication
+### ***********************
+
+### Create a new user
+POST http://localhost:4000/v1/users HTTP/1.1
+content-type: application/json
+
+{
+  "name":"Grace Smith",
+  "email":"grace@example.com",
+  "password":"pa55w0rd"
+}
+
+
+### If the user isn't activated an error occure when requesting an endpoint.
+### Use the original (unhashed) activation token from the users welcome mail.
+PUT http://localhost:4000/v1/users/activate HTTP/1.1
+content-type: application/json
+
+{
+  "token":"WUILESDH7VHPCELNGC4JPT3RMA"
+}
+
+
+### Test with no authentication
+GET http://localhost:4000/v1/healthcheck HTTP/1.1
+content-type: application/json
+
+
+### Create authentication token for an existing user,...
+POST http://localhost:4000/v1/tokens/authentication HTTP/1.1
+content-type: application/json
+
+{
+  "email":"janika@werz.com",
+  "password":"pa55w0rd"
+}
+
+### ...now use the created authentication token for the next request.
+GET http://localhost:4000/v1/healthcheck HTTP/1.1
+Authorization: Bearer UXNG2DFIDPXMHYQ23VJINZZEXE
+content-type: application/json
+
+
+### ...now use the created authentication token for the next request.
+GET http://localhost:4000/v1/movies/1 HTTP/1.1
+Authorization: Bearer CBXIMAS3LEAGPVUHQ25X3WLH5Q
+content-type: application/json
+
+
+###************************
+### Data manipulation
+### ***********************
+
+### Insert a movie
+POST http://localhost:4000/v1/movies HTTP/1.1
+Authorization: Bearer CBXIMAS3LEAGPVUHQ25X3WLH5Q
+content-type: application/json
+
+{
+  "title":"The Breakfast Club",
+  "year":1985,
+  "runtime":97
+}
+
+### Get a movie
+GET http://localhost:4000/v1/movies/1 HTTP/1.1
+
+
+### Partial update a movie
+PATCH http://localhost:4000/v1/movies/8 HTTP/1.1
+content-type: application/json
+
+{
+  "runtime":234
+}
+
+### Delete a movie
+DELETE http://localhost:4000/v1/movies/6 HTTP/1.1
+Authorization: Bearer CBXIMAS3LEAGPVUHQ25X3WLH5Q
+
+
+### Get list of movies with query string
+GET http://localhost:4000/v1/movies
