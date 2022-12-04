@@ -19,7 +19,8 @@ func Version() string {
 			case "vcs.time":
 				time = s.Value
 			case "vcs.revision":
-				revision = s.Value
+				runes := []rune(s.Value)
+				revision = string(runes[0:6])
 			case "vcs.modified":
 				if s.Value == "true" {
 					modified = true

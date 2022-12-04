@@ -88,14 +88,14 @@ qc/vendor:
 # ==========================================================================================================
 
 ## api/test: test the cmd/api application
-.PHONY: run/test
-run/test:
+.PHONY: api/test
+api/test:
 	go test -v -cover ./...
 
 ## api/run: run the cmd/api application
-.PHONY: run/api
-run/api:
-	@go run ./cmd/api/* -cors-trusted-origins="http://localhost:9000 http://localhost:9001"
+.PHONY: api/run
+api/run:
+	@go run ./cmd/api/* -db-dsn=${GREENLIGHT_DB_DSN} -cors-trusted-origins="http://localhost:9000 http://localhost:9001"
 
 # ==========================================================================================================
 # BUILD
