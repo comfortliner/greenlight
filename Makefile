@@ -1,8 +1,9 @@
-DB_URL=sqlserver://sa:Pa55w0rd@localhost:1433?database=greenlight
-
 # ==========================================================================================================
 # HELPERS
 # ==========================================================================================================
+
+# Include variables from the .envrc file
+include .envrc
 
 ## help: print this help message
 .PHONY: help
@@ -40,23 +41,23 @@ db/migrations/new:
 .PHONY: db/migrations/up
 db/migrations/up:
 	@echo 'Running up migrations.'
-	migrate -path migrations -database "$(DB_URL)" -verbose up
+	migrate -path migrations -database ${GREENLIGHT_DB_DSN} -verbose up
 
 ## db/migrations/up1: apply the next up database migration
 .PHONY: db/migrations/up1
 db/migrations/up1:
-	migrate -path migrations -database "$(DB_URL)" -verbose up 1
+	migrate -path migrations -database ${GREENLIGHT_DB_DSN} -verbose up 1
 
 ## db/migrations/down: apply all down database migrations
 .PHONY: db/migrations/down
 db/migrations/down:
 	@echo 'Running down migrations.'
-	migrate -path migrations -database "$(DB_URL)" -verbose down
+	migrate -path migrations -database ${GREENLIGHT_DB_DSN} -verbose down
 
 ## db/migrations/down1: apply the further down database migration
 .PHONY: db/migrations/down1 
 db/migrations/down1:
-	migrate -path migrations -database "$(DB_URL)" -verbose down 1
+	migrate -path migrations -database ${GREENLIGHT_DB_DSN} -verbose down 1
 
 
 # ==========================================================================================================
