@@ -1,0 +1,48 @@
+{{define "nav"}}
+<script>
+  const toolbarData = [
+    {
+      id: "applicationname",
+      type: "title",
+      value: "Greenlight"
+    },
+    {
+      type: "spacer"
+    },
+    {
+      id: "home",
+      icon: "fa-solid fa-house",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "settings",
+      icon: "fa-solid fa-gear",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "info",
+      icon: "fa-solid fa-circle-info",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "avatar",
+      type: "imageButton",
+      src: "static/assets/images/avatar_01.jpeg"
+    },
+    {
+      id: "username",
+      type: "title",
+      value: "Werz, Andreas"
+    }
+  ];
+</script>
+{{end}}

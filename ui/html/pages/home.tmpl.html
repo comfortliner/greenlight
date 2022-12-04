@@ -1,0 +1,47 @@
+{{define "content"}}
+<script>
+  // Layout initialization
+  const layout = new dhx.Layout("layoutMain", {
+    rows: [
+      {
+        id: "toolbar",
+        height: "content"
+      },
+      {
+        id: "tabbar",
+        height: "content"
+      },
+      {
+        type: "space",
+        rows: [
+          {}
+        ]
+      }
+    ]
+  });
+
+  // Toolbar initialization
+  const toolbar = new dhx.Toolbar(null, {
+    css: "toolbar_template_a"
+  });
+  // loading data into Toolbar
+  toolbar.data.parse(toolbarData);
+
+  // initializing Tabbar for navigation
+  const tabbar = new dhx.Tabbar(null, {
+    views: [
+      { tab: "Dashboard" },
+      { tab: "Reports" },
+      { tab: "Tickets" },
+      { tab: "Users" },
+      { tab: "Applications" }
+    ],
+    tabAlign: "center",
+    noContent: true
+  });
+
+  // attaching widgets into Layout cells
+  layout.getCell("toolbar").attach(toolbar);
+  layout.getCell("tabbar").attach(tabbar);
+</script>
+{{end}}

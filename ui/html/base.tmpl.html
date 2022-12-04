@@ -1,0 +1,45 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Greenlight</title>
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <link rel="shortcut icon" href="/static/dhx/common/favicon/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/static/dhx/common/favicon/icon-16.png" sizes="16x16" />
+  <link rel="icon" href="/static/dhx/common/favicon/icon-32.png" sizes="32x32" />
+  <link rel="icon" href="/static/dhx/common/favicon/icon-48.png" sizes="48x48" />
+  <link rel="icon" href="/static/dhx/common/favicon/icon-96.png" sizes="96x96" />
+  <link rel="icon" href="/static/dhx/common/favicon/icon-144.png" sizes="144x144" />
+
+  <!-- DHX CSS -->
+  <link rel="stylesheet" href="/static/dhx/codebase/suite.css?v=7.3.0" />
+  <link rel="stylesheet" href="/static/dhx/common/index.css?v=7.3.0" />
+
+  <link href="/static/assets/fontawesome/css/fontawesome.css" rel="stylesheet">
+  <link href="/static/assets/fontawesome/css/brands.css" rel="stylesheet">
+  <link href="/static/assets/fontawesome/css/solid.css" rel="stylesheet">
+
+  {{block "css" .}}
+  {{end}}
+</head>
+
+<body>
+  <!-- component container -->
+  <div id="layoutMain" style="height: 100%;"></div>
+
+  <!-- DHX JavaScript -->
+  <script type="text/JavaScript" src="/static/dhx/codebase/suite.js?v=7.3.0"></script>
+
+  {{template "nav".}}
+
+  {{block "content" .}}
+  {{end}}
+</body>
+
+</html>
+{{end}}
