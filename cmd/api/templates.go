@@ -9,7 +9,6 @@ func (app *application) homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	files := []string{
 		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/css.tmpl.html",
 		"./ui/html/partials/nav.tmpl.html",
 		"./ui/html/pages/home.tmpl.html",
 	}

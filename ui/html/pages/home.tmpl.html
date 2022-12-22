@@ -1,4 +1,4 @@
-{{define "content"}}
+{{define "main"}}
 <script>
   // Layout initialization
   const layout = new dhx.Layout("layoutMain", {
@@ -22,7 +22,7 @@
 
   // Toolbar initialization
   const toolbar = new dhx.Toolbar(null, {
-    css: "toolbar_template_a"
+    css: "toolbar_template_light"
   });
   // loading data into Toolbar
   toolbar.data.parse(toolbarData);

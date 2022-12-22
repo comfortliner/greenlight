@@ -1,10 +1,16 @@
 {{define "nav"}}
 <script>
+  const logoSVG = document.getElementById("sample_logo").innerHTML;
   const toolbarData = [
     {
-      id: "applicationname",
-      type: "title",
-      value: "Greenlight"
+      type: "customHTML",
+      html: logoSVG,
+      css: "logo-container"
+    },
+    {
+      type: "customHTML",
+      html: "Greenlight",
+      css: "application-title"
     },
     {
       type: "spacer"
@@ -36,10 +42,9 @@
     {
       id: "avatar",
       type: "imageButton",
-      src: "static/assets/images/avatar_01.jpeg"
+      src: "static/assets/images/avatar_02.jpeg"
     },
     {
-      id: "username",
       type: "title",
       value: "Werz, Andreas"
     }
