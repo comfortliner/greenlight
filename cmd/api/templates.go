@@ -2,25 +2,46 @@ package main
 
 import (
 	"html/template"
-	"net/http"
+	"path/filepath"
 )
 
-func (app *application) homeHandler(w http.ResponseWriter, r *http.Request) {
+type templateData struct {
+	AppName     string
+	AppVersion  string
+	UserName    string
+	CurrentYear int
+	Form        any
+}
 
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
+// newTemplateCache() creates an in-memory map to cache the parsed templates.
+func newTemplateCache() (map[string]*template.Template, error) {
+	cache := map[string]*template.Template{}
 
-	ts, err := template.ParseFiles(files...)
+	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.*")
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+		return nil, err
 	}
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
+	for _, page := range pages {
+		name := filepath.Base(page)
+
+		ts, err := template.ParseFiles("./ui/html/base.tmpl.html")
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl.*")
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseFiles(page)
+		if err != nil {
+			return nil, err
+		}
+
+		cache[name] = ts
 	}
+
+	return cache, nil
 }

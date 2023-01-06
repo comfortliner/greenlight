@@ -1,0 +1,45 @@
+{{define "main"}}
+<main class="login_main">
+  <div class="login_container">
+    <section class="wrapper">
+      <div class="heading">
+        <h1 class="login_text login_text-normal">{{.AppName}}</h1>
+        <div class="striped">
+          <span class="striped-line"></span>
+        </div>
+        <h1 class="login_text login_text-large">Login</h1>
+        <p class="login_text login_text-normal">Neuer Benutzer? <span><a href="/user/signup"
+              class="login_text login_text-links">Konto erstellen</a></span>
+        </p>
+        <br>
+      </div>
+      <div class="method">
+        <div class="method-control">
+          <a href="#" class="method-action">
+            <span>Single Sign On (SSO)</span>
+          </a>
+        </div>
+      </div>
+      <div class="striped">
+        <span class="striped-line"></span>
+        <span class="striped-text">Oder</span>
+        <span class="striped-line"></span>
+      </div>
+      <form action="/user/login" method="POST" name="login" class="form">
+        <div class="input-control">
+          <label for="email" class="input-label">E-Mail</label>
+          <input type="email" name="email" id="email" class="input-field" placeholder="">
+        </div>
+        <div class="input-control">
+          <label for="password" class="input-label">Passwort</label>
+          <input type="password" name="password" id="password" class="input-field" placeholder="">
+        </div>
+        <div class="input-control">
+          <!-- <a href="#" class="login_text login_text-links">Forgot Password</a> -->
+          <input type="submit" name="submit" class="input-submit" value="Anmelden">
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+{{end}}

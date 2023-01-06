@@ -181,3 +181,5 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// TODO: Setting security headers, as described in Chapter 6.2 from Andrew Edwars book 'Let´s Go'

@@ -9,14 +9,15 @@
     },
     {
       type: "customHTML",
-      html: "Greenlight",
+      html: "{{.AppName}}",
       css: "application-title"
     },
     {
       type: "spacer"
     },
     {
-      id: "home",
+      id: "NavButHome",
+      tooltip: "Home",
       icon: "fa-solid fa-house",
       type: "button",
       view: "link",
@@ -24,15 +25,8 @@
       circle: true,
     },
     {
-      id: "settings",
-      icon: "fa-solid fa-gear",
-      type: "button",
-      view: "link",
-      color: "secondary",
-      circle: true,
-    },
-    {
-      id: "info",
+      id: "NavButInfo",
+      tooltip: "Info",
       icon: "fa-solid fa-circle-info",
       type: "button",
       view: "link",
@@ -40,13 +34,22 @@
       circle: true,
     },
     {
-      id: "avatar",
+      id: "NavButSettings",
+      tooltip: "Settings",
+      icon: "fa-solid fa-gear",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "NavButAvatar",
       type: "imageButton",
       src: "static/assets/images/avatar_02.jpeg"
     },
     {
       type: "title",
-      value: "Werz, Andreas"
+      value: "{{.UserName}}"
     }
   ];
 </script>

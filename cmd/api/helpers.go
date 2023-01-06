@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,8 +10,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/comfortliner/greenlight/internal/validator"
+	"github.com/go-playground/form/v4"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -170,4 +173,62 @@ func (app *application) background(fn func()) {
 		// Execute the function that we passed as a parameter.
 		fn()
 	}()
+}
+
+// The render() helper method renders the templates from the Template Cache.
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data *templateData) {
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := fmt.Errorf("the template %s does not exist", page)
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+
+	err := ts.ExecuteTemplate(buf, "base", data)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(status)
+
+	buf.WriteTo(w)
+}
+
+// The newTemplateData() helper is used to define the 'default' data for our templates.
+func (app *application) newTemplateData(r *http.Request) *templateData {
+	return &templateData{
+		AppName:     app.config.name,
+		AppVersion:  app.config.version,
+		UserName:    "Gast",
+		CurrentYear: time.Now().Year(),
+	}
+}
+
+// The decodePostForm() helper defines a mapping between HTML form and the destination data fields.
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+// The isForm() helper checks if the request comes from an HTML Form.
+func (app *application) isForm(r *http.Request) bool {
+	return r.Header.Get("Content-type") == "application/x-www-form-urlencoded"
 }

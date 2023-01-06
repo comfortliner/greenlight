@@ -1,6 +1,11 @@
 {{define "main"}}
+<div id="layoutMain" style="height: 100%;"></div>
 <script>
-  // Layout initialization
+  /********************************************
+  * Components
+  ********************************************/
+
+  // Layout initialization.
   const layout = new dhx.Layout("layoutMain", {
     rows: [
       {
@@ -12,36 +17,110 @@
         height: "content"
       },
       {
-        type: "space",
         rows: [
-          {}
+          {
+            type: "space",
+            cols: [
+              {
+                id: "content"
+              }
+            ]
+          }
         ]
       }
     ]
   });
 
-  // Toolbar initialization
+  // Toolbar initialization.
+  // Loading data into Toolbar and attach widget into Layout cell.
   const toolbar = new dhx.Toolbar(null, {
-    css: "toolbar_template_light"
+    css: "toolbar_template_dark"
   });
-  // loading data into Toolbar
-  toolbar.data.parse(toolbarData);
 
-  // initializing Tabbar for navigation
+  try {
+    toolbar.data.parse(toolbarData);
+    layout.getCell("toolbar").attach(toolbar);
+  } catch { }
+
+
+  // Tabbar initialization.
+  // Attaching widget into Layout cells.
   const tabbar = new dhx.Tabbar(null, {
     views: [
-      { tab: "Dashboard" },
-      { tab: "Reports" },
-      { tab: "Tickets" },
-      { tab: "Users" },
-      { tab: "Applications" }
+      {
+        id: "tabDashboard",
+        tab: "Dashboard"
+      },
+      {
+        id: "tabReports",
+        tab: "Reports"
+      },
+      {
+        id: "tabTickets",
+        tab: "Tickets"
+      },
+      {
+        id: "tabUsers",
+        tab: "Users"
+      },
+      {
+        id: "tabApplications",
+        tab: "Applications"
+      }
     ],
-    tabAlign: "center",
-    noContent: true
+    tabAlign: "center"
+    // noContent: true
   });
 
-  // attaching widgets into Layout cells
-  layout.getCell("toolbar").attach(toolbar);
   layout.getCell("tabbar").attach(tabbar);
+
+
+  // Form initialization.
+  const LoginForm = new dhx.Form(null, {
+    css: "dhx_layout-cell--bordered",
+    padding: 20,
+    rows: [
+      {
+        name: "iAppName",
+        type: "input",
+        label: "Applikation",
+        value: "{{.AppName}}",
+        readOnly: true
+      },
+      {
+        name: "iAppVersion",
+        type: "input",
+        label: "Version",
+        value: "{{.AppVersion}}",
+        readOnly: true
+      }
+    ]
+  });
+
+  /********************************************
+  * Events
+  ********************************************/
+
+  toolbar.events.on("click", function (id) {
+    switch (id) {
+      case "NavButHome":
+        if (!layout.getCell("tabbar").isVisible()) {
+          layout.getCell("tabbar").show();
+          layout.getCell("content").attachHTML("<p></p>");
+          console.log(tabbar.getActive());
+        }
+        break;
+      case "NavButInfo":
+        layout.getCell("tabbar").hide();
+        layout.getCell("content").attach(LoginForm);
+        break;
+      case "NavButSettings":
+        layout.getCell("tabbar").hide();
+        layout.getCell("content").attachHTML("Settings of the App");
+        break;
+      default:
+    }
+  });
+
 </script>
 {{end}}

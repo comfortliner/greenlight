@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Greenlight</title>
+  <title>{{.AppName}}</title>
   <meta name="viewport"
     content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -16,25 +16,26 @@
   <link rel="icon" href="/static/dhx/common/favicon/icon-96.png" sizes="96x96" />
   <link rel="icon" href="/static/dhx/common/favicon/icon-144.png" sizes="144x144" />
 
-  <!-- App CSS -->
-  <link href="/static/css/main.css" rel="stylesheet">
 
   <!-- DHX CSS -->
   <link rel="stylesheet" href="/static/dhx/codebase/suite.css?v=7.3.0" />
   <link rel="stylesheet" href="/static/dhx/common/index.css?v=7.3.0" />
 
+  <!-- App CSS -->
+  <link href="/static/css/styles.css" rel="stylesheet">
+  <link href="/static/css/login.css" rel="stylesheet">
+
+  <!-- App Icons -->
   <link href="/static/assets/fontawesome/css/fontawesome.css" rel="stylesheet">
   <link href="/static/assets/fontawesome/css/brands.css" rel="stylesheet">
   <link href="/static/assets/fontawesome/css/solid.css" rel="stylesheet">
 </head>
 
 <body>
-  <!-- component container -->
-  <div id="layoutMain" style="height: 100%;"></div>
-
   <!-- DHX JavaScript -->
   <script type="text/JavaScript" src="/static/dhx/codebase/suite.js?v=7.3.0"></script>
 
+  <!-- Logo -->
   <template id="sample_logo" style="display:none;">
     <svg viewBox="105 0 12.9 54.8" xmlns="http://www.w3.org/2000/svg" class="sample-logo">
       <g fill="#991d85">
@@ -52,7 +53,8 @@
     </svg>
   </template>
 
-  {{template "nav" .}}
+  {{block "nav" .}}
+  {{end}}
 
   {{template "main" .}}
 </body>

@@ -10,24 +10,36 @@ content-type: application/json
 ### ***********************
 
 ### Create a new user
-POST http://localhost:4000/v1/users HTTP/1.1
+POST http://localhost:4000/v1/user/signup HTTP/1.1
 content-type: application/json
 
 {
-  "name":"Grace Smith",
-  "email":"grace@example.com",
-  "password":"pa55w0rd"
+  "name":"Carmen Werz",
+  "email":"carmen@werz.com",
+  "password":"pa55w0rd",
+  "password2":"pa55w0rd"
 }
 
 
 ### If the user isn't activated an error occure when requesting an endpoint.
 ### Use the original (unhashed) activation token from the users welcome mail.
-PUT http://localhost:4000/v1/users/activate HTTP/1.1
+### JSON
+PUT https://localhost:4000/v1/user/activate HTTP/1.1
 content-type: application/json
 
 {
   "token":"WUILESDH7VHPCELNGC4JPT3RMA"
 }
+
+
+### If the user isn't activated an error occure when requesting an endpoint.
+### Use the original (unhashed) activation token from the users welcome mail.
+### HTML Form
+POST https://localhost:4000/v1/user/activate HTTP/1.1
+content-type: application/x-www-form-urlencoded
+
+a_page=tokenverification.tmpl.html
+&token=WUILESDH7VHPCELNGC4JPT3RMA
 
 
 ### Test with no authentication
@@ -36,11 +48,11 @@ content-type: application/json
 
 
 ### Create authentication token for an existing user,...
-POST http://localhost:4000/v1/tokens/authentication HTTP/1.1
+POST https://localhost:4000/v1/tokens/authentication HTTP/1.1
 content-type: application/json
 
 {
-  "email":"janika@werz.com",
+  "email":"sheila@deliz.de",
   "password":"pa55w0rd"
 }
 

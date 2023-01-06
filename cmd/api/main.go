@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"html/template"
 	"os"
 	"strings"
 	"sync"
@@ -14,7 +15,9 @@ import (
 	"github.com/comfortliner/greenlight/internal/jsonlog"
 	"github.com/comfortliner/greenlight/internal/mailer"
 	"github.com/comfortliner/greenlight/internal/vcs"
+
 	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/go-playground/form/v4"
 )
 
 // Define a config stuct to hold all the configuration settings for our application.
@@ -43,11 +46,13 @@ type config struct {
 
 // Define an application struct to hold the dependencies for our HTTP handlers, helpers and middleware.
 type application struct {
-	config config
-	logger *jsonlog.Logger
-	mailer mailer.Mailer
-	models data.Models
-	wg     sync.WaitGroup
+	config        config
+	logger        *jsonlog.Logger
+	mailer        mailer.Mailer
+	models        data.Models
+	wg            sync.WaitGroup
+	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -55,7 +60,7 @@ func main() {
 	var cfg config
 
 	// Application
-	cfg.name = "api"
+	cfg.name = "Greenlight"
 	cfg.version = vcs.Version()
 
 	// Read the value of the given flags.
@@ -107,12 +112,26 @@ func main() {
 
 	logger.PrintInfo("database connection pool established", nil)
 
+	// Initialize a new template cache.
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+
+	// Initialize a decoder instance.
+	formDecoder := form.NewDecoder()
+
+	// TODO: sessionManager instance...
+	// important for TLS connections: sessionManager.Cookie.Secure = true
+
 	// Declare an instance of the application struct.
 	app := &application{
-		config: cfg,
-		logger: logger,
-		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
-		models: data.NewModels(db),
+		config:        cfg,
+		logger:        logger,
+		mailer:        mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
+		models:        data.NewModels(db),
+		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	err = app.serve()

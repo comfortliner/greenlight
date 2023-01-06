@@ -1,4 +1,5 @@
 .DS_Store
 .envrc
 bin/
+tls/
 ui/static/dhx/

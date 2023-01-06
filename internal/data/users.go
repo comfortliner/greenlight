@@ -29,6 +29,7 @@ type User struct {
 	Name      string    `json:"name"`       // User name.
 	Email     string    `json:"email"`      // User email.
 	Password  password  `json:"-"`          // User password.
+	Password2 password  `json:"-"`          // User password.
 	Activated bool      `json:"activated"`  // User is activated [y/n].
 	Version   int       `json:"-"`          // The version number starts at 1 and will be incremented each time the user information is updated.
 }
@@ -94,6 +95,10 @@ func ValidateUser(v *validator.Validator, user *User) {
 		ValidatePasswordPlaintext(v, *user.Password.plaintext)
 	}
 
+	if user.Password.plaintext != nil && user.Password2.plaintext != nil {
+		ValidatePasswordMatchPlaintext(v, *user.Password.plaintext, *user.Password2.plaintext)
+	}
+
 	if user.Password.hash == nil {
 		panic("missing password hash for user")
 	}
@@ -108,6 +113,10 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
 	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
 	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+}
+
+func ValidatePasswordMatchPlaintext(v *validator.Validator, password string, password2 string) {
+	v.Check(password == password2, "password", "passwords do not match")
 }
 
 // **********************
@@ -139,7 +148,7 @@ func (m UserModel) Insert(user *User) error {
 
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), "mssql: Violation of UNIQUE KEY constraint 'UQ__users__AB6E61643DE406A8'."):
+		case strings.Contains(err.Error(), "mssql: Violation of UNIQUE KEY constraint"):
 			return ErrDuplicateEmail
 		default:
 			return err
@@ -206,7 +215,7 @@ func (m UserModel) Update(user *User) error {
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Version)
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), "mssql: Violation of UNIQUE KEY constraint 'UQ__users__AB6E61643DE406A8'."):
+		case strings.Contains(err.Error(), "mssql: Violation of UNIQUE KEY constraint"):
 			return ErrDuplicateEmail
 		case errors.Is(err, sql.ErrNoRows):
 			return ErrEditConflict
