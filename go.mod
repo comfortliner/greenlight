@@ -3,6 +3,8 @@ module github.com/comfortliner/greenlight
 go 1.18
 
 require (
+	github.com/alexedwards/scs/mssqlstore v0.0.0-20221223131519-238b052508b6
+	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/go-mail/mail/v2 v2.3.0
 	github.com/go-playground/form/v4 v4.2.0

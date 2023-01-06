@@ -21,10 +21,10 @@ func (app *application) routes() http.Handler {
 	router.ServeFiles("/static/*filepath", http.Dir("./ui/static/"))
 
 	// template routes
-	router.HandlerFunc(http.MethodGet, "/", app.homeHandler)
-	router.HandlerFunc(http.MethodGet, "/user/login", app.loginHandler)
-	router.HandlerFunc(http.MethodGet, "/user/signup", app.signupHandler)
-	router.HandlerFunc(http.MethodGet, "/user/tokenverification", app.tokenVerificationHandler)
+	router.Handler(http.MethodGet, "/", app.sessionManager.LoadAndSave(http.HandlerFunc(app.homeHandler)))
+	router.Handler(http.MethodGet, "/user/login", app.sessionManager.LoadAndSave(http.HandlerFunc(app.loginHandler)))
+	router.Handler(http.MethodGet, "/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.signupHandler)))
+	router.Handler(http.MethodGet, "/user/tokenverification", app.sessionManager.LoadAndSave(http.HandlerFunc(app.tokenVerificationHandler)))
 
 	// ==========================================================================================================
 	// BACKEND
@@ -34,13 +34,15 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
 	// user
-	router.HandlerFunc(http.MethodPost, "/v1/user/signup", app.registerUserHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/user/activate", app.activateUserHandler)
-	router.HandlerFunc(http.MethodPut, "/v1/user/activate", app.activateUserHandler)
+	router.Handler(http.MethodPost, "/v1/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.registerUserHandler)))
+	router.Handler(http.MethodPost, "/v1/user/activate", app.sessionManager.LoadAndSave(http.HandlerFunc(app.activateUserHandler)))
+	router.Handler(http.MethodPut, "/v1/user/activate", app.sessionManager.LoadAndSave(http.HandlerFunc(app.activateUserHandler)))
+	router.Handler(http.MethodPost, "/v1/user/logout", app.sessionManager.LoadAndSave(http.HandlerFunc(app.logoutUserHandler)))
 
 	// tokens
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 
+	// ToDo: Implement Session Manager to the following routes.
 	// movies
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.requirePermission("movies:read", app.listMoviesHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.requirePermission("movies:write", app.createMovieHandler))

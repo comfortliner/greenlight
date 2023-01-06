@@ -16,6 +16,8 @@ import (
 	"github.com/comfortliner/greenlight/internal/mailer"
 	"github.com/comfortliner/greenlight/internal/vcs"
 
+	"github.com/alexedwards/scs/mssqlstore"
+	"github.com/alexedwards/scs/v2"
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/go-playground/form/v4"
 )
@@ -46,13 +48,14 @@ type config struct {
 
 // Define an application struct to hold the dependencies for our HTTP handlers, helpers and middleware.
 type application struct {
-	config        config
-	logger        *jsonlog.Logger
-	mailer        mailer.Mailer
-	models        data.Models
-	wg            sync.WaitGroup
-	templateCache map[string]*template.Template
-	formDecoder   *form.Decoder
+	config         config
+	logger         *jsonlog.Logger
+	mailer         mailer.Mailer
+	models         data.Models
+	wg             sync.WaitGroup
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -124,14 +127,19 @@ func main() {
 	// TODO: sessionManager instance...
 	// important for TLS connections: sessionManager.Cookie.Secure = true
 
+	sessionManager := scs.New()
+	sessionManager.Store = mssqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	// Declare an instance of the application struct.
 	app := &application{
-		config:        cfg,
-		logger:        logger,
-		mailer:        mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
-		models:        data.NewModels(db),
-		templateCache: templateCache,
-		formDecoder:   formDecoder,
+		config:         cfg,
+		logger:         logger,
+		mailer:         mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
+		models:         data.NewModels(db),
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	err = app.serve()
