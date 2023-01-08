@@ -9,7 +9,10 @@ type homeForm struct {
 }
 
 type loginForm struct {
+	Email       string
+	Password    string
 	FieldErrors map[string]string
+	RedirectURL string
 }
 
 type signupForm struct {
@@ -18,29 +21,30 @@ type signupForm struct {
 	Password    string
 	Password2   string
 	FieldErrors map[string]string
+	RedirectURL string
 }
 
 type tokenVerificationHandlerForm struct {
-	A_FieldErrors map[string]string
-	A_Page        string
-	Token         string
+	Token       string
+	FieldErrors map[string]string
+	RedirectURL string
 }
 
-func (app *application) homeHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) homeTmplHandler(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = homeForm{}
 
 	app.render(w, r, http.StatusOK, "home.tmpl.html", data)
 }
 
-func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) loginTmplHandler(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = loginForm{}
 
 	app.render(w, r, http.StatusOK, "login.tmpl.html", data)
 }
 
-func (app *application) signupHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) signupTmplHandler(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = signupForm{}
 
@@ -48,12 +52,8 @@ func (app *application) signupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) tokenVerificationHandler(w http.ResponseWriter, r *http.Request) {
-	page := "tokenverification.tmpl.html"
-
 	data := app.newTemplateData(r)
-	data.Form = tokenVerificationHandlerForm{
-		A_Page: page,
-	}
+	data.Form = tokenVerificationHandlerForm{}
 
-	app.render(w, r, http.StatusOK, page, data)
+	app.render(w, r, http.StatusOK, "tokenverification.tmpl.html", data)
 }

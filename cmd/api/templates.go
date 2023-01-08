@@ -6,11 +6,12 @@ import (
 )
 
 type templateData struct {
-	AppName     string
-	AppVersion  string
-	UserName    string
-	CurrentYear int
-	Form        any
+	AppName         string
+	AppVersion      string
+	UserName        string
+	CurrentYear     int
+	Form            any
+	IsAuthenticated bool
 }
 
 // newTemplateCache() creates an in-memory map to cache the parsed templates.

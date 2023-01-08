@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -10,8 +9,8 @@ import (
 	"github.com/comfortliner/greenlight/internal/validator"
 )
 
-// Add a registerUserHandler for the "POST /v1/user/signup" endpoint.
-func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
+// Add a signupUserHandler for the "POST /user/signup" endpoint.
+func (app *application) signupUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name      string `json:"name" form:"name"`
 		Email     string `json:"email" form:"email"`
@@ -19,22 +18,20 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Password2 string `json:"password2" form:"password2"`
 	}
 
-	switch app.isForm(r) {
-	case true:
-		err := app.decodePostForm(r, &input)
-		if err != nil {
-			app.badRequestResponse(w, r, err)
-			return
-		}
-	default:
-		err := app.readJSON(w, r, &input)
-		if err != nil {
-			app.badRequestResponse(w, r, err)
-			return
-		}
+	err := app.decodePostForm(r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
 	}
 
-	ct := r.Header.Get("Content-type")
+	form := signupForm{
+		Name:        input.Name,
+		Email:       input.Email,
+		Password:    input.Password,
+		Password2:   input.Password2,
+		FieldErrors: map[string]string{},
+		RedirectURL: "signup.tmpl.html",
+	}
 
 	// Copy the values from the input struct to a new User struct.
 	user := &data.User{
@@ -43,7 +40,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Activated: false,
 	}
 
-	err := user.Password.Set(input.Password)
+	err = user.Password.Set(input.Password)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -59,26 +56,9 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	v := validator.New()
 
 	// Use the Valid() method to see if any of the checks failed.
-	if data.ValidateUser(v, user); !v.Valid() {
-		if ct == "application/x-www-form-urlencoded" {
-			form := signupForm{
-				Name:        input.Name,
-				Email:       input.Email,
-				Password:    input.Password,
-				Password2:   input.Password2,
-				FieldErrors: map[string]string{},
-			}
-
-			form.FieldErrors = v.Errors
-
-			data := app.newTemplateData(r)
-			data.Form = form
-
-			app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
-			return
-		}
-
-		app.failedValidationResponse(w, r, v.Errors)
+	if data.ValidateUserRegister(v, user); !v.Valid() {
+		form.FieldErrors = v.Errors
+		app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
 		return
 	}
 
@@ -87,7 +67,8 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, data.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			app.failedValidationResponse(w, r, v.Errors)
+			form.FieldErrors = v.Errors
+			app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -122,37 +103,25 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 	})
 
-	if ct == "application/x-www-form-urlencoded" {
-		http.Redirect(w, r, "/user/tokenverification", http.StatusSeeOther)
-		return
-	}
-
-	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
+	http.Redirect(w, r, "/user/tokenverification", http.StatusSeeOther)
 }
 
-// Add a activateUserHandler for the ("POST /v1/user/activate" = HTML Forms)
-// and the ("PUT /v1/user/activate" = JSON) endpoint.
+// Add a activateUserHandler for the "POST /user/activate" endpoint.
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		TokenPlaintext string `json:"token" form:"token"`
 	}
 
-	switch app.isForm(r) {
-	case true:
-		err := app.decodePostForm(r, &input)
-		if err != nil {
-			app.badRequestResponse(w, r, err)
-			return
-		}
-	default:
-		err := app.readJSON(w, r, &input)
-		if err != nil {
-			app.badRequestResponse(w, r, err)
-			return
-		}
+	err := app.decodePostForm(r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	form := tokenVerificationHandlerForm{
+		Token:       input.TokenPlaintext,
+		FieldErrors: map[string]string{},
+		RedirectURL: "tokenverification.tmpl.html",
 	}
 
 	// Initialize a new Validator instance.
@@ -160,7 +129,8 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 
 	// Use the Valid() method to see if any of the checks failed.
 	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		form.FieldErrors = v.Errors
+		app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
 		return
 	}
 
@@ -169,7 +139,8 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			app.failedValidationResponse(w, r, v.Errors)
+			form.FieldErrors = v.Errors
+			app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -183,7 +154,8 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		switch {
 		case errors.Is(err, data.ErrEditConflict):
 			v.AddError("token", "unable to update the record due to an edit conflict, please try again")
-			app.failedValidationResponse(w, r, v.Errors)
+			form.FieldErrors = v.Errors
+			app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -196,13 +168,83 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
-// Add a logoutUserHandler for the "POST /v1/user/logout" endpoint.
+// Add a loginUserHandler for the "POST /user/login" endpoint.
+func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email    string `json:"email" form:"email"`
+		Password string `json:"password" form:"password"`
+	}
+
+	err := app.decodePostForm(r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	form := loginForm{
+		Email:       input.Email,
+		Password:    input.Password,
+		FieldErrors: map[string]string{},
+		RedirectURL: "login.tmpl.html",
+	}
+
+	// Copy the values from the input struct to a new User struct.
+	user := &data.User{
+		Email: input.Email,
+	}
+
+	err = user.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// Initialize a new Validator instance.
+	v := validator.New()
+
+	// Use the Valid() method to see if any of the checks failed.
+	if data.ValidateUserLogin(v, user); !v.Valid() {
+		form.FieldErrors = v.Errors
+		app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
+		return
+	}
+
+	id, err := app.models.Users.Authenticate(user.Email, input.Password)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrInvalidCredentials):
+			v.AddError("email", "email or password is incorrect")
+			form.FieldErrors = v.Errors
+			app.failedValidationResponseForm(w, r, &form, form.RedirectURL)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Add a logoutUserHandler for the "POST /user/logout" endpoint.
 func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -7,15 +7,13 @@
         <div class="striped">
           <span class="striped-line"></span>
         </div>
-        <h1 class="login_text login_text-large">E-Mail Check</h1>
+        <h1 class="login_text login_text-large">Benutzerkonto erfolgreich angelegt.</h1>
         <p class="login_text login_text-normal">Zur Überprüfung Ihrer Identität haben wir einen Code
           an die von Ihnen eingegebene E-Mail Adresse gesendet.
-          <a href="#" class="login_text login_text-links">Code erneut senden.</a>
         </p>
       </div>
-      <form action="/v1/user/activate" method="POST" name="tokenverification" class="form">
-        <input type="text" name="a_page" id="a_page" class="input-field" value="{{.Form.A_Page}}" hidden>
-        {{with .Form.A_FieldErrors.token}}
+      <form action="/user/activate" method="POST" name="tokenverification" class="form">
+        {{with .Form.FieldErrors.token}}
         <label class="error">{{.}}</label>
         {{end}}
         <div class="input-control">
@@ -23,7 +21,7 @@
           <input type="name" name="token" id="token" class="input-field" placeholder="" value="{{.Form.Token}}">
         </div>
         <div class="input-control">
-          <input type="submit" name="submit" class="input-submit" value="Konto erstellen">
+          <input type="submit" name="submit" class="input-submit" value="Konto aktivieren">
         </div>
       </form>
     </section>

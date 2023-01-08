@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrRecordNotFound = errors.New("record not found")
-	ErrEditConflict   = errors.New("edit conflict")
+	ErrRecordNotFound     = errors.New("record not found")
+	ErrEditConflict       = errors.New("edit conflict")
+	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
 // Models struct which wraps all existing models.

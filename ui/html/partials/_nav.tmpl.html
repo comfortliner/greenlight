@@ -1,0 +1,71 @@
+{{define "nav"}}
+<script>
+  const logoSVG = document.getElementById("sample_logo").innerHTML;
+  const toolbarData = [
+    {
+      type: "customHTML",
+      html: logoSVG,
+      css: "logo-container"
+    },
+    {
+      type: "customHTML",
+      html: "{{.AppName}}",
+      css: "application-title"
+    },
+    {
+      type: "customHTML",
+      html: "<a href='/user/signup'>Signup</a>",
+      css: ""
+    },
+    {
+      type: "customHTML",
+      html: "<a href='/user/login'>Login</a>",
+      css: ""
+    },
+    {
+      type: "customHTML",
+      html: "<form action='/user/logout' method='POST'><button>Logout</button></form>",
+      css: ""
+    },
+    {
+      type: "spacer"
+    },
+    {
+      id: "NavButHome",
+      tooltip: "Home",
+      icon: "fa-solid fa-house",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "NavButInfo",
+      tooltip: "Info",
+      icon: "fa-solid fa-circle-info",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "NavButSettings",
+      tooltip: "Settings",
+      icon: "fa-solid fa-gear",
+      type: "button",
+      view: "link",
+      color: "secondary",
+      circle: true,
+    },
+    {
+      id: "NavButAvatar",
+      type: "imageButton",
+      src: "static/assets/images/avatar_02.jpeg"
+    },
+    {
+      type: "title",
+      value: "{{.UserName}}"
+    }
+  ];
+</script>
+{{end}}

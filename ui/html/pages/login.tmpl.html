@@ -28,10 +28,16 @@
       <form action="/user/login" method="POST" name="login" class="form">
         <div class="input-control">
           <label for="email" class="input-label">E-Mail</label>
+          {{with .Form.FieldErrors.email}}
+          <label class="error">{{.}}</label>
+          {{end}}
           <input type="email" name="email" id="email" class="input-field" placeholder="">
         </div>
         <div class="input-control">
           <label for="password" class="input-label">Passwort</label>
+          {{with .Form.FieldErrors.password}}
+          <label class="error">{{.}}</label>
+          {{end}}
           <input type="password" name="password" id="password" class="input-field" placeholder="">
         </div>
         <div class="input-control">

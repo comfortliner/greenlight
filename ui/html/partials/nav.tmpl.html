@@ -1,71 +1,52 @@
 {{define "nav"}}
-<script>
-  const logoSVG = document.getElementById("sample_logo").innerHTML;
-  const toolbarData = [
-    {
-      type: "customHTML",
-      html: logoSVG,
-      css: "logo-container"
-    },
-    {
-      type: "customHTML",
-      html: "{{.AppName}}",
-      css: "application-title"
-    },
-    {
-      type: "customHTML",
-      html: "<a href='/user/signup'>Signup</a>",
-      css: ""
-    },
-    {
-      type: "customHTML",
-      html: "<a href='/user/login'>Login</a>",
-      css: ""
-    },
-    {
-      type: "customHTML",
-      html: "<form action='/v1/user/logout' method='POST'><button>Logout</button></form>",
-      css: ""
-    },
-    {
-      type: "spacer"
-    },
-    {
-      id: "NavButHome",
-      tooltip: "Home",
-      icon: "fa-solid fa-house",
-      type: "button",
-      view: "link",
-      color: "secondary",
-      circle: true,
-    },
-    {
-      id: "NavButInfo",
-      tooltip: "Info",
-      icon: "fa-solid fa-circle-info",
-      type: "button",
-      view: "link",
-      color: "secondary",
-      circle: true,
-    },
-    {
-      id: "NavButSettings",
-      tooltip: "Settings",
-      icon: "fa-solid fa-gear",
-      type: "button",
-      view: "link",
-      color: "secondary",
-      circle: true,
-    },
-    {
-      id: "NavButAvatar",
-      type: "imageButton",
-      src: "static/assets/images/avatar_02.jpeg"
-    },
-    {
-      type: "title",
-      value: "{{.UserName}}"
-    }
-  ];
-</script>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">{{.AppName}}</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/albums">Albums</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#!" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#!">Action</a></li>
+            <li><a class="dropdown-item" href="#!">Another action</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item disabled" href="#!">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
+        {{if .IsAuthenticated}}
+        <li class="nav-item">
+          <form class="d-flex" action="/user/logout" method="POST">
+            <button type="submit" class="btn btn-link nav-link" role="link">Logout</button>
+          </form>
+        </li>
+        {{else}}
+        <li class="nav-item">
+          <a class="nav-link" href="/user/signup">Signup</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/user/login">Login</a>
+        </li>
+        {{end}}
+      </ul>
+    </div>
+  </div>
+</nav>
 {{end}}

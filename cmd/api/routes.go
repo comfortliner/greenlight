@@ -21,10 +21,20 @@ func (app *application) routes() http.Handler {
 	router.ServeFiles("/static/*filepath", http.Dir("./ui/static/"))
 
 	// template routes
-	router.Handler(http.MethodGet, "/", app.sessionManager.LoadAndSave(http.HandlerFunc(app.homeHandler)))
-	router.Handler(http.MethodGet, "/user/login", app.sessionManager.LoadAndSave(http.HandlerFunc(app.loginHandler)))
-	router.Handler(http.MethodGet, "/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.signupHandler)))
+	router.Handler(http.MethodGet, "/", app.sessionManager.LoadAndSave(http.HandlerFunc(app.homeTmplHandler)))
+
+	// mod_sfta
+	// StateFul Token Authentication
+	router.Handler(http.MethodGet, "/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.signupTmplHandler)))
+	router.Handler(http.MethodPost, "/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.signupUserHandler)))
+
 	router.Handler(http.MethodGet, "/user/tokenverification", app.sessionManager.LoadAndSave(http.HandlerFunc(app.tokenVerificationHandler)))
+	router.Handler(http.MethodPost, "/user/activate", app.sessionManager.LoadAndSave(http.HandlerFunc(app.activateUserHandler)))
+
+	router.Handler(http.MethodGet, "/user/login", app.sessionManager.LoadAndSave(http.HandlerFunc(app.loginTmplHandler)))
+	router.Handler(http.MethodPost, "/user/login", app.sessionManager.LoadAndSave(http.HandlerFunc(app.loginUserHandler)))
+
+	router.Handler(http.MethodPost, "/user/logout", app.sessionManager.LoadAndSave(http.HandlerFunc(app.logoutUserHandler)))
 
 	// ==========================================================================================================
 	// BACKEND
@@ -32,12 +42,6 @@ func (app *application) routes() http.Handler {
 
 	// healthcheck
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-
-	// user
-	router.Handler(http.MethodPost, "/v1/user/signup", app.sessionManager.LoadAndSave(http.HandlerFunc(app.registerUserHandler)))
-	router.Handler(http.MethodPost, "/v1/user/activate", app.sessionManager.LoadAndSave(http.HandlerFunc(app.activateUserHandler)))
-	router.Handler(http.MethodPut, "/v1/user/activate", app.sessionManager.LoadAndSave(http.HandlerFunc(app.activateUserHandler)))
-	router.Handler(http.MethodPost, "/v1/user/logout", app.sessionManager.LoadAndSave(http.HandlerFunc(app.logoutUserHandler)))
 
 	// tokens
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)

@@ -200,10 +200,11 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 // The newTemplateData() helper is used to define the 'default' data for our templates.
 func (app *application) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
-		AppName:     app.config.name,
-		AppVersion:  app.config.version,
-		UserName:    "Gast",
-		CurrentYear: time.Now().Year(),
+		AppName:         app.config.name,
+		AppVersion:      app.config.version,
+		UserName:        "Gast",
+		CurrentYear:     time.Now().Year(),
+		IsAuthenticated: app.isAuthenticated(r),
 	}
 }
 
@@ -228,7 +229,6 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 	return nil
 }
 
-// The isForm() helper checks if the request comes from an HTML Form.
-func (app *application) isForm(r *http.Request) bool {
-	return r.Header.Get("Content-type") == "application/x-www-form-urlencoded"
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
 }

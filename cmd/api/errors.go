@@ -25,28 +25,6 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-// The errorResponseForm() method is a generic helper for sending error messages to the client
-// for displaying it in a HTML Form with a given status code.
-func (app *application) errorResponseForm(w http.ResponseWriter, r *http.Request, status int, message map[string]string) {
-	var input struct {
-		A_Page string `form:"a_page"`
-	}
-
-	err := app.decodePostForm(r, &input)
-	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
-	data := app.newTemplateData(r)
-	data.Form = tokenVerificationHandlerForm{
-		A_FieldErrors: message,
-		A_Page:        input.A_Page,
-	}
-
-	app.render(w, r, status, input.A_Page, data)
-}
-
 // The badRequestResponse() method will be used to send a 400 Bad Request status code and JSON response to the client.
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
@@ -65,13 +43,16 @@ func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 }
 
 // The failedValidationResponse() method will be used to send a 422 Unprocessable Entity status code to the client.
-// The content of the response depends on the Content-Type.
 func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
-	if app.isForm(r) {
-		app.errorResponseForm(w, r, http.StatusUnprocessableEntity, errors)
-		return
-	}
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
+
+// The failedValidationResponse() method will be used to send a 422 Unprocessable Entity status code to the client.
+func (app *application) failedValidationResponseForm(w http.ResponseWriter, r *http.Request, formdata any, page string) {
+	data := app.newTemplateData(r)
+	data.Form = formdata
+
+	app.render(w, r, http.StatusUnprocessableEntity, page, data)
 }
 
 // The serverErrorResponse() method will be used when our application encounters an unexpected problem at runtime.

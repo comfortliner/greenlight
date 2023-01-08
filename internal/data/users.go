@@ -72,7 +72,7 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
-			return false, nil
+			return false, ErrInvalidCredentials
 		default:
 			return false, err
 		}
@@ -85,7 +85,7 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 // * Data Validation
 // **********************
 
-func ValidateUser(v *validator.Validator, user *User) {
+func ValidateUserRegister(v *validator.Validator, user *User) {
 	v.Check(user.Name != "", "name", "must be provided")
 	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
 
@@ -101,6 +101,14 @@ func ValidateUser(v *validator.Validator, user *User) {
 
 	if user.Password.hash == nil {
 		panic("missing password hash for user")
+	}
+}
+
+func ValidateUserLogin(v *validator.Validator, user *User) {
+	ValidateEmail(v, user.Email)
+
+	if user.Password.plaintext != nil {
+		ValidatePasswordPlaintext(v, *user.Password.plaintext)
 	}
 }
 
@@ -271,4 +279,41 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 	}
 
 	return &user, nil
+}
+
+func (m UserModel) Authenticate(email, password string) (int64, error) {
+	query := `
+		SELECT id, password_hash
+		FROM users
+		WHERE email = @p1
+	`
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, email).Scan(
+		&user.ID,
+		&user.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return 0, ErrInvalidCredentials
+		default:
+			return 0, err
+		}
+	}
+
+	err = bcrypt.CompareHashAndPassword(user.Password.hash, []byte(password))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return 0, ErrInvalidCredentials
+		default:
+			return 0, err
+		}
+	}
+
+	return user.ID, nil
 }
