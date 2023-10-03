@@ -8,24 +8,27 @@
 ## Features
 
 * Automatic loading and saving of session data via middleware.
-* Choice of server-side session stores including PostgreSQL, MySQL, MSSQL, SQLite, Redis and many others. Custom session stores are also supported.
+* Choice of 19 different server-side session stores including PostgreSQL, MySQL, MSSQL, SQLite, Redis and many others. Custom session stores are also supported.
 * Supports multiple sessions per request, 'flash' messages, session token regeneration, idle and absolute session timeouts, and 'remember me' functionality.
 * Easy to extend and customize. Communicate session tokens to/from clients in HTTP headers or request/response bodies.
 * Efficient design. Smaller, faster and uses less memory than [gorilla/sessions](https://github.com/gorilla/sessions).
 
 ## Instructions
 
-* [Installation](#installation)
-* [Basic Use](#basic-use)
-* [Configuring Session Behavior](#configuring-session-behavior)
-* [Working with Session Data](#working-with-session-data)
-* [Loading and Saving Sessions](#loading-and-saving-sessions)
-* [Configuring the Session Store](#configuring-the-session-store)
-* [Using Custom Session Stores](#using-custom-session-stores)
-* [Preventing Session Fixation](#preventing-session-fixation)
-* [Multiple Sessions per Request](#multiple-sessions-per-request)
-* [Enumerate All Sessions](#enumerate-all-sessions)
-* [Compatibility](#compatibility)
+- [SCS: HTTP Session Management for Go](#scs-http-session-management-for-go)
+  - [Features](#features)
+  - [Instructions](#instructions)
+    - [Installation](#installation)
+    - [Basic Use](#basic-use)
+    - [Configuring Session Behavior](#configuring-session-behavior)
+    - [Working with Session Data](#working-with-session-data)
+    - [Loading and Saving Sessions](#loading-and-saving-sessions)
+    - [Configuring the Session Store](#configuring-the-session-store)
+    - [Using Custom Session Stores](#using-custom-session-stores)
+      - [Using Custom Session Stores (with context.Context)](#using-custom-session-stores-with-contextcontext)
+    - [Multiple Sessions per Request](#multiple-sessions-per-request)
+    - [Enumerate All Sessions](#enumerate-all-sessions)
+    - [Compatibility](#compatibility)
 
 ### Installation
 
@@ -127,7 +130,7 @@ The [`Pop()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Po
 
 Some other useful functions are [`Exists()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Exists) (which returns a `bool` indicating whether or not a given key exists in the session data) and [`Keys()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Keys) (which returns a sorted slice of keys in the session data).
 
-Individual data items can be deleted from the session using the [`Remove()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Remove) method. Alternatively, all session data can de deleted by using the [`Destroy()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Destroy) method. After calling `Destroy()`, any further operations in the same request cycle will result in a new session being created --- with a new session token and a new lifetime.
+Individual data items can be deleted from the session using the [`Remove()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Remove) method. Alternatively, all session data can be deleted by using the [`Destroy()`](https://pkg.go.dev/github.com/alexedwards/scs/v2#SessionManager.Destroy) method. After calling `Destroy()`, any further operations in the same request cycle will result in a new session being created --- with a new session token and a new lifetime.
 
 Behind the scenes SCS uses gob encoding to store session data, so if you want to store custom types in the session data they must be [registered](https://golang.org/pkg/encoding/gob/#Register) with the encoding/gob package first. Struct fields of custom types must also be exported so that they are visible to the encoding/gob package. Please [see here](https://gist.github.com/alexedwards/d6eca7136f98ec12ad606e774d3abad3) for a working example.
 
@@ -149,9 +152,14 @@ The session stores currently included are shown in the table below. Please click
 |:------------------------------------------------------------------------------------- |---------------------------------------------------------------------------------------|
 | [badgerstore](https://github.com/alexedwards/scs/tree/master/badgerstore)       		| Badger based session store  		                                           	   		|
 | [boltstore](https://github.com/alexedwards/scs/tree/master/boltstore)       			| Bolt based session store  		                                               		|
+| [bunstore](https://github.com/alexedwards/scs/tree/master/bunstore)  					| Bun based session store  		                                               			|
 | [buntdbstore](https://github.com/alexedwards/scs/tree/master/buntdbstore)  			| BuntDB based session store  		                                               		|
+| [cockroachdbstore](https://github.com/alexedwards/scs/tree/master/cockroachdbstore)   | CockroachDB based session store  		                                               	|
+| [consulstore](https://github.com/alexedwards/scs/tree/master/consulstore)  			| Consul based session store  		                                               		|
+| [etcdstore](https://github.com/alexedwards/scs/tree/master/etcdstore)  				| Etcd based session store  		                                               		|
 | [firestore](https://github.com/alexedwards/scs/tree/master/firestore)       			| Google Cloud Firestore based session store                                       		|
 | [gormstore](https://github.com/alexedwards/scs/tree/master/gormstore)       			| GORM based session store        					                               		|
+| [leveldbstore](https://github.com/alexedwards/scs/tree/master/leveldbstore)       	| LevelDB based session store        					                               	|
 | [memstore](https://github.com/alexedwards/scs/tree/master/memstore)       			| In-memory session store (default)                                                		|
 | [mongodbstore](https://github.com/alexedwards/scs/tree/master/mongodbstore)       	| MongoDB based session store                                               	   		|
 | [mssqlstore](https://github.com/alexedwards/scs/tree/master/mssqlstore)       		| MSSQL based session store     	                                          	   		|
@@ -201,18 +209,23 @@ type IterableStore interface {
 [`scs.CtxStore`](https://pkg.go.dev/github.com/alexedwards/scs/v2#CtxStore) defines the interface for custom session stores (with methods take context.Context parameter).
 
 ```go
-// CtxStore is an interface which all methods take context.Context parameter
 type CtxStore interface {
-	Store 
-	
-    // DeleteCtx same as Store.Delete, excepts takes context.Context
-    DeleteCtx(ctx context.Context, token string) (err error)
-    
-    // FindCtx same as Store.Find, excepts takes context.Context
-    FindCtx(ctx context.Context, token string) (b []byte, found bool, err error)
-    
-    // CommitCtx same as Store.Commit, excepts takes context.Context
-    CommitCtx(ctx context.Context, token string, b []byte, expiry time.Time) (err error)
+	Store
+
+	// DeleteCtx is the same as Store.Delete, except it takes a context.Context.
+	DeleteCtx(ctx context.Context, token string) (err error)
+
+	// FindCtx is the same as Store.Find, except it takes a context.Context.
+	FindCtx(ctx context.Context, token string) (b []byte, found bool, err error)
+
+	// CommitCtx is the same as Store.Commit, except it takes a context.Context.
+	CommitCtx(ctx context.Context, token string, b []byte, expiry time.Time) (err error)
+}
+
+type IterableCtxStore interface {
+	// AllCtx is the same as IterableStore.All, expect it takes a
+	// context.Context.
+	AllCtx(ctx context.Context) (map[string][]byte, error)
 }
 ````
 
@@ -246,7 +259,7 @@ To iterate throught all sessions, SCS offers to all data stores an `All()` funct
 Essentially, in your code, you pass the `Iterate()` method a closure with the signature `func(ctx context.Context) error` which contains the logic that you want to execute against each session. For example, if you want to revoke all sessions with contain a `userID` value equal to `4` you can do the following:
 
 ```go
-err := sessionManager.Iterate(func(ctx context.Context) error {
+err := sessionManager.Iterate(r.Context(), func(ctx context.Context) error {
 	userID := sessionManager.GetInt(ctx, "userID")
 
 	if userID == 4 {
