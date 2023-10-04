@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,7 +21,7 @@ func (app *application) serve() error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.port),
 		Handler:      app.routes(),
-		ErrorLog:     log.New(app.logger, "", 0),
+		ErrorLog:     slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		TLSConfig:    tlsConfig,
@@ -36,9 +36,7 @@ func (app *application) serve() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		s := <-quit
 
-		app.logger.PrintInfo("shutting down server", map[string]string{
-			"signal": s.String(),
-		})
+		app.logger.Info("caught signal", "signal", s.String())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
@@ -48,19 +46,14 @@ func (app *application) serve() error {
 			shutdownError <- err
 		}
 
-		app.logger.PrintInfo("completing background tasks", map[string]string{
-			"addr": srv.Addr,
-		})
+		app.logger.Info("completing background tasks", "addr", srv.Addr)
 
 		app.wg.Wait()
 		shutdownError <- nil
 	}()
 
 	// Start the HTTP server.
-	app.logger.PrintInfo("starting server", map[string]string{
-		"addr": srv.Addr,
-		"env":  app.config.env,
-	})
+	app.logger.Info("starting server", "addr", srv.Addr, "env", app.config.env)
 
 	err := srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	// err := srv.ListenAndServe()
@@ -73,11 +66,7 @@ func (app *application) serve() error {
 		return err
 	}
 
-	app.logger.PrintInfo("stopped server", map[string]string{
-		"addr": srv.Addr,
-		"env":  app.config.env,
-	})
+	app.logger.Info("stopped server", "addr", srv.Addr)
 
 	return nil
-
 }

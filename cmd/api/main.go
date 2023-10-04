@@ -6,13 +6,13 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/comfortliner/greenlight/internal/data"
-	"github.com/comfortliner/greenlight/internal/jsonlog"
 	"github.com/comfortliner/greenlight/internal/mailer"
 	"github.com/comfortliner/greenlight/internal/vcs"
 
@@ -23,6 +23,7 @@ import (
 )
 
 // Define a config stuct to hold all the configuration settings for our application.
+// We will read in these configuration settings from command-line flags when the application starts.
 type config struct {
 	cors struct {
 		trustedOrigins []string
@@ -49,7 +50,7 @@ type config struct {
 // Define an application struct to hold the dependencies for our HTTP handlers, helpers and middleware.
 type application struct {
 	config         config
-	logger         *jsonlog.Logger
+	logger         *slog.Logger
 	mailer         mailer.Mailer
 	models         data.Models
 	wg             sync.WaitGroup
@@ -96,29 +97,28 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Initialize a new logger which writes any message at or above the INFO severity level to the standard out stream.
-	logger := jsonlog.New(
-		os.Stdout,
-		fmt.Sprintf("%s@%s", cfg.name, cfg.version),
-		jsonlog.LevelInfo,
-	)
+	// Initialize a new structured logger which writes log entries to the standard out stream,
+	// formatted as a JSON object.
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	// Call the openDB() helper function to create the connection pool.
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Defer a call to db.Close() method so that the connection pool is closed before
 	// the main() function exits.
 	defer db.Close()
 
-	logger.PrintInfo("database connection pool established", nil)
+	logger.Info("database connection pool established")
 
 	// Initialize a new template cache.
 	templateCache, err := newTemplateCache()
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initialize a decoder instance.
@@ -144,7 +144,8 @@ func main() {
 
 	err = app.serve()
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 }
 

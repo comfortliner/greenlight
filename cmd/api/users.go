@@ -99,7 +99,7 @@ func (app *application) signupUserHandler(w http.ResponseWriter, r *http.Request
 
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
-			app.logger.PrintError(err, nil)
+			app.logger.Error(err.Error())
 		}
 	})
 
