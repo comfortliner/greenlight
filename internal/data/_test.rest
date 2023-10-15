@@ -1,5 +1,5 @@
 ### Healthcheck
-GET http://localhost:4000/v1/healthcheck HTTP/1.1
+GET https://localhost:4000/v1/healthcheck HTTP/1.1
 content-type: application/json
 
 
@@ -43,7 +43,7 @@ a_page=tokenverification.tmpl.html
 
 
 ### Test with no authentication
-GET http://localhost:4000/v1/healthcheck HTTP/1.1
+GET https://localhost:4000/v1/healthcheck HTTP/1.1
 content-type: application/json
 
 
