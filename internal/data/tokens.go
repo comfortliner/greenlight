@@ -20,7 +20,7 @@ const (
 // * Model Definition
 // **********************
 
-// Define a Token struct to represent an individual token.
+// Token struct to represent an individual token.
 type Token struct {
 	Plaintext string    `json:"token"`
 	Hash      []byte    `json:"-"`
@@ -29,7 +29,7 @@ type Token struct {
 	Scope     string    `json:"-"`
 }
 
-// Define a TokenModel struct type which wraps a sql.DB connection pool.
+// TokenModel struct type which wraps a sql.DB connection pool.
 type TokenModel struct {
 	DB *sql.DB
 }
@@ -37,6 +37,8 @@ type TokenModel struct {
 // **********************
 // * Data Validation
 // **********************
+
+// ValidateTokenPlaintext chechs that the plaintext has been provided and is exactly 26 bytes long.
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 	v.Check(tokenPlaintext != "", "token", "must be provided")
 	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
@@ -45,6 +47,8 @@ func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 // **********************
 // * Data Manipulation
 // **********************
+
+// generateToken create a token instance containing the user ID, expiry, and scope information.
 func generateToken(userID int64, ttl time.Duration, scope string) (*Token, error) {
 	token := &Token{
 		UserID: userID,
@@ -66,6 +70,7 @@ func generateToken(userID int64, ttl time.Duration, scope string) (*Token, error
 	return token, nil
 }
 
+// Insert adds the data for specific token to the token table.
 func (m TokenModel) Insert(token *Token) error {
 	query := `
 		INSERT INTO usertokens (hash, user_id, expiry, scope)

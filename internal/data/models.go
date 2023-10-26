@@ -19,7 +19,7 @@ type Models struct {
 	Users       UserModel
 }
 
-// For ease of use, wa add a NewModels() method which returns a Models struct containing all existing models.
+// NewModels method returns a Models struct containing all existing models.
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies:      MovieModel{DB: db},

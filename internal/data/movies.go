@@ -14,7 +14,7 @@ import (
 // * Model Definition
 // **********************
 
-// Define a Movie struct to represent an individual movie.
+// Movie struct to represent an individual movie.
 type Movie struct {
 	ID        int64     `json:"id"`                // Unique integer ID for the movie.
 	CreatedAt time.Time `json:"-"`                 // Timestamp for when the movie is added to our database.
@@ -24,7 +24,7 @@ type Movie struct {
 	Version   int32     `json:"version"`           // The version number starts at 1 and will be incremented each time the movie information is updated.
 }
 
-// Define a MovieModel struct type which wraps a sql.DB connection pool.
+// MovieModel struct type which wraps a sql.DB connection pool.
 type MovieModel struct {
 	DB *sql.DB
 }

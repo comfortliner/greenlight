@@ -1,5 +1,15 @@
+# OS files
 .DS_Store
+
+# Environment files
 .envrc
-bin/
+
+# Build directories
+build/
+coverage/
+
+# Certificate files
 tls/
+
+# Chargeable UI Framework
 ui/static/dhx/

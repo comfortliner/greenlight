@@ -10,10 +10,10 @@ import (
 // * Model Definition
 // **********************
 
-// Define a Permissions slice, which we will use to hold the permission codes for a single user.
+// Permissions slice, which we will use to hold the permission codes for a single user.
 type Permissions []string
 
-// Add a helper method to check whether the Permissions slice contains a specific permission code.
+// Include is a helper method to check whether the Permissions slice contains a specific permission code.
 func (p Permissions) Include(code string) bool {
 	for i := range p {
 		if code == p[i] {
@@ -23,7 +23,7 @@ func (p Permissions) Include(code string) bool {
 	return false
 }
 
-// Define a PermissionModel struct type which wraps a sql.DB connection pool.
+// PermissionModel struct type which wraps a sql.DB connection pool.
 type PermissionModel struct {
 	DB *sql.DB
 }

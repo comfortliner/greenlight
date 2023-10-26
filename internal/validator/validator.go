@@ -9,7 +9,7 @@ var (
 	EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
-// Define a new Validator type which contains a map of validation errors.
+// Validator type which contains a map of validation errors.
 type Validator struct {
 	Errors map[string]string
 }
@@ -38,7 +38,7 @@ func (v *Validator) Check(ok bool, key, message string) {
 	}
 }
 
-// Generic function which returns true if a specific value is in a list.
+// PermittedValue returns true if a specific value is in a list.
 func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	return slices.Contains(permittedValues, value)
 }
@@ -48,7 +48,7 @@ func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
 
-// Generic function which returns true if all values in a slice are unique.
+// Unique returns true if all values in a slice are unique.
 func Unique[T comparable](values []T) bool {
 	uniqueValues := make(map[T]bool)
 

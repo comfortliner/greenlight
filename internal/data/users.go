@@ -22,7 +22,7 @@ var AnonymousUser = &User{}
 // * Model Definition
 // **********************
 
-// Define a User struct to represent an individual user.
+// User struct to represent an individual user.
 type User struct {
 	ID        int64     `json:"id"`         // Unique integer ID for the user.
 	CreatedAt time.Time `json:"created_at"` // Timestamp for when the user is added to our database.
@@ -34,7 +34,7 @@ type User struct {
 	Version   int       `json:"-"`          // The version number starts at 1 and will be incremented each time the user information is updated.
 }
 
-// Define a UserModel struct type which wraps a sql.DB connection pool.
+// UserModel struct type which wraps a sql.DB connection pool.
 type UserModel struct {
 	DB *sql.DB
 }

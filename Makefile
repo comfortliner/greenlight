@@ -71,9 +71,15 @@ qc/audit: qc/vendor
 	go fmt ./...
 	@echo 'Vetting code.'
 	go vet ./...
-	staticcheck ./...
+	@echo 'Static check'
+	go run honnef.co/go/tools/cmd/staticcheck@latest --checks=all ./...
 	@echo 'Running tests.'
-	go test -race -vet=off ./...
+	go test -cover ./...
+	@echo 'Determine test coverage.'
+	mkdir -p ./coverage
+	go test -coverprofile=./coverage/coverage.out ./...
+	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+	open ./coverage/coverage.html
 
 ## qc/vendor: tidy and vendor dependencies
 .PHONY: qc/vendor
@@ -88,12 +94,7 @@ qc/vendor:
 # RUN
 # ==========================================================================================================
 
-## api/test: test the cmd/api application
-.PHONY: api/test
-api/test:
-	go test -v -cover ./...
-
-## api/run: run the cmd/api application
+## api/run: run the application
 .PHONY: api/run
 api/run:
 	@go run ./cmd/api/* -db-dsn=${GREENLIGHT_DB_DSN} -cors-trusted-origins="http://localhost:9000 http://localhost:9001"
@@ -106,6 +107,6 @@ api/run:
 .PHONY: api/build
 api/build:
 	@echo 'Building cmd/api for a macos/amd64  machine.'
-	GOOS=darwin GOARCH=amd64 go build -o=./bin/darwin/api ./cmd/api
+	GOOS=darwin GOARCH=amd64 go build -o=./build/darwin/api ./cmd/api
 	@echo 'Building cmd/api for a windows/amd64 machine.'
-	GOOS=windows GOARCH=amd64 go build -o=./bin/windows/api.exe ./cmd/api
+	GOOS=windows GOARCH=amd64 go build -o=./build/windows/api.exe ./cmd/api
