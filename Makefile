@@ -64,7 +64,7 @@ db/migrations/down1:
 # QUALITY CONTROL
 # ==========================================================================================================
 
-## qc/audit: tidy and vendor dependencies and format, vet and test all code
+## qc/audit: format, vet and test all code
 .PHONY: qc/audit
 qc/audit: qc/vendor
 	@echo 'Formatting code.'
