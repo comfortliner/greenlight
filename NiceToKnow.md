@@ -29,3 +29,13 @@
   * Otherwise use `API keys` or `stateful token authentication`.
     * Stateful token are a nice fit for APIs that act as the back-end for a website or single-page application.
     * API keys can be better for more 'general purpose' APIs because they're permanent and simpler for developers to use in ther application and scripts.
+
+## GO and React in a monorepo
+
+[github aesrael](https://github.com/aesrael/go-postgres-react-starter/tree/master)
+
+[github ueokande](https://github.com/ueokande/go-react-boilerplate)
+
+[Let's code React Gin Blog](https://letscode.blog/2021/06/25/react-gin-blog-1-19-golang-and-react-web-app-guide/)
+
+[Embed ReactJS to a go binary](https://dev.to/pacholoamit/one-of-the-coolest-features-of-go-embed-reactjs-into-a-go-binary-41e9)
