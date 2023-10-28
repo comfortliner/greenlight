@@ -9,7 +9,7 @@ build/
 coverage/
 
 # Certificate files
-tls/
+tls/files/
 
 # Chargeable UI Framework
 ui/static/dhx/
